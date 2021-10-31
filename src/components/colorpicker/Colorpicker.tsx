@@ -31,7 +31,7 @@ class Colorpicker extends React.Component<NoProps, StateProps> {
 			this.setState({
 			      colorwheel : res.data.post
 			})
-		}).catch((err) => {
+		}).catch((err: Error) => {
                   console.log("Keine Verbindung zum Backend");
             })
 
