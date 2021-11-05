@@ -27,28 +27,26 @@ class App extends React.Component<NoProps, StateProps> {
 
 		this.state = {
 			luxArray: [],
-			refreshInterval: 1,
-			requestTimeout: 4,
+			refreshInterval: 0.5,
+			requestTimeout: 100
 		};
 	}
 
 	async fetchit() {
-		axios.get("http://192.168.1.72:3001/", { timeout: this.state.requestTimeout })
+		axios.get("http://10.42.0.2:3001/", { timeout: this.state.requestTimeout })
 			.then((res) => {
+				
+				let data = res.data["get"]
 
-				let data = res.data["GET"]
-
-				if(data?.[0]?.["luxMS"] === undefined)
+				if(data?.[0]?.["voltage"] === undefined)
 					return
-
+				
 				this.setState((prev) => ({
 					luxArray: [
 						...prev.luxArray,
-						JSON.stringify(res.data["GET"][0]["luxMS"]),
+						JSON.stringify(res.data["get"][0]["voltage"]),
 					],
 				}));
-
-				console.log(res.data);
 			})
 			.catch((err) => {
 				return;
@@ -64,7 +62,9 @@ class App extends React.Component<NoProps, StateProps> {
 	render() {
 		return (
 			<div className="App">
-				<h2>Colorpicker</h2>
+				<div>
+					<h2>Colorpicker</h2>
+				</div>
 				<Colorpicker />
 				<footer>
 					Letzter Lichtwert:

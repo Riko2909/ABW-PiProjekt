@@ -1,6 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { NoProps } from "../../type-declarations/types";
+import Settings from "../settings/Generalsettings";
 import "./Colorpicker.css";
 
 type colors = {
@@ -11,6 +12,7 @@ type colors = {
 
 type StateProps = {
 	colorwheel: colors;
+	manualState: boolean;
 };
 
 class Colorpicker extends React.Component<NoProps, StateProps> {
@@ -23,13 +25,21 @@ class Colorpicker extends React.Component<NoProps, StateProps> {
 				g: false,
 				b: false,
 			},
+			manualState: false
 		};
 	}
 
 	async componentDidMount() {
-		await axios.get("http://192.168.1.72:3001/colors", {timeout: 4}).then((res) => {
+		await axios.get("http://10.42.0.2:3001/settings", {timeout: 40}).then((res) => {
+			
+			let newState: any = res.data.post
+
+			if(newState.length < 1)
+				return
+
 			this.setState({
-			      colorwheel : res.data.post
+			      colorwheel : newState.colorwheel,
+				  manualState: newState.manualState
 			})
 		}).catch((err: Error) => {
                   console.log("Keine Verbindung zum Backend");
@@ -55,9 +65,22 @@ class Colorpicker extends React.Component<NoProps, StateProps> {
 			}),
 		});
 
-		await axios.post("http://192.168.1.72:3001/colors", {
-			colorwheel: this.state.colorwheel,
+		await axios.post("http://10.42.0.2:3001/settings", {
+			colorwheel: this.state,
 		});
+	}
+
+	async updateState() {
+		await this.setState({
+			manualState: !this.state.manualState
+		});
+
+		await axios.post("http://10.42.0.2:3001/settings", {
+			colorwheel: this.state,
+		});		
+
+		console.log(this.state);
+		
 	}
 
 	render() {
@@ -95,6 +118,7 @@ class Colorpicker extends React.Component<NoProps, StateProps> {
 						BLUE
 					</button>
 				</div>
+				<Settings manuell={this.state.manualState} onClick={() => this.updateState()} />
 			</div>
 		);
 	}
